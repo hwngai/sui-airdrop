@@ -5,10 +5,13 @@ extension_path = "Sui-Wallet.crx"
 
 def run_sui(proxy_pass):
     sui = SUI(extension_path, proxy_pass)
-    sui.connect_sui()
-    sui.action_sui()
+    try:
+        sui.connect_sui()
+        sui.action_sui()
+    except:
+        sui.driver.quit()
 
-for proxy_pass in LIST_PROXY_PASS[:2]:
+for proxy_pass in LIST_PROXY_PASS[2:10]:
     run_sui(proxy_pass)
 
 

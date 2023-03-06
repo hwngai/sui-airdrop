@@ -150,7 +150,7 @@ class SUI:
         self.driver.switch_to.window(self.windows['2048'])
         actions = ActionChains(self.driver)
         keys = [Keys.UP, Keys.DOWN, Keys.LEFT, Keys.RIGHT]
-        for i in range(10):
+        for i in range(15):
             key = random.choice(keys)
             time.sleep(1)
             actions.send_keys(key).perform()
