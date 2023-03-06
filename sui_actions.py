@@ -5,9 +5,11 @@ import time
 import random
 import pyperclip
 from seleniumwire import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from sui_account import add_sui_account
 from Generate_password import generate_password
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 
 class SUI:
@@ -42,7 +44,7 @@ class SUI:
 
 
         self.driver = webdriver.Chrome(seleniumwire_options=self.seleniumwire_options, options=self.options)
-        self.wait = WebDriverWait(self.driver, 10, 1)
+        self.wait = WebDriverWait(self.driver, 30, 1)
 
     def connect_sui(self):
         self.wait.until(lambda driver: len(driver.window_handles) >= 2)
@@ -133,8 +135,34 @@ class SUI:
         self.driver.switch_to.window(current_handle)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
         time.sleep(1)
-        self.driver.switch_to.window(self.windows['home'])
 
+        self.driver.switch_to.window(self.windows['2048'])
+        self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="ethos-start"]/button'))).click() # get started
+        self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="ethos-close-on-click"]/div/div[2]/div[2]/div/button'))).click() # connect sui
+
+        self.wait.until(EC.number_of_windows_to_be(5))
+        handles = self.driver.window_handles
+        current_handle = handles[-1]
+        self.driver.switch_to.window(current_handle)
+        self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
+
+
+        self.driver.switch_to.window(self.windows['2048'])
+        actions = ActionChains(self.driver)
+        keys = [Keys.UP, Keys.DOWN, Keys.LEFT, Keys.RIGHT]
+        for i in range(10):
+            key = random.choice(keys)
+            time.sleep(1)
+            actions.send_keys(key).perform()
+        self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="claim-button"]'))).click()  # claim
+
+        self.wait.until(EC.number_of_windows_to_be(5))
+        handles = self.driver.window_handles
+        current_handle = handles[-1]
+        self.driver.switch_to.window(current_handle)
+        self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
+
+        self.driver.switch_to.window(self.windows['home'])
         add_sui_account(self.wallet_address, self.recovery_phrase, self.password, "sui_accounts.json")
 
         self.driver.quit()
