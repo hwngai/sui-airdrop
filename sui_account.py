@@ -32,3 +32,6 @@ def add_sui_account(wallet_address, recovery_phrase, password, json_file):
         json.dump(sui_accounts, f, indent=4)
 
     print(f"Đã thêm tài khoản SUI mới vào tệp {json_file}!")
+
+
+

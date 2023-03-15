@@ -10,29 +10,39 @@ from Generate_password import generate_password
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+import os
+
+
+
+windows_countries = ['United States', 'Canada', 'Argentina', 'Brazil', 'Mexico', 'Costa Rica', 'Chile',
+                     'United Kingdom', 'Germany', 'France', 'Netherlands', 'Sweden', 'Switzerland',
+                     'Denmark', 'Poland', 'Italy', 'Spain', 'Norway', 'Belgium', 'Ireland', 'Czech Republic',
+                     'Austria', 'Portugal', 'Finland', 'Ukraine', 'Romania', 'Serbia', 'Hungary', 'Luxembourg',
+                     'Slovakia', 'Bulgaria', 'Latvia', 'Greece', 'Iceland', 'Estonia', 'Albania', 'Croatia',
+                     'Cyprus', 'Slovenia', 'Moldova', 'Bosnia and Herzegovina', 'Georgia', 'North Macedonia',
+                     'Turkey', 'South Africa', 'India', 'Israel', 'Turkey', 'United Arab Emirates', 'Australia',
+                     'Taiwan', 'Singapore', 'Japan', 'Hong Kong', 'New Zealand', 'Malaysia', 'Vietnam', 'Indonesia',
+                     'South Korea', 'Thailand']
+
+def connect_to_vpn():
+    current_dir = r'C:\Users\satom\Desktop\sui-airdrop'
+    os.chdir(r"C:\Program Files\NordVPN")
+    server = "nordvpn -c -g \'"+random.choice(windows_countries)+"\'"
+    os.system(server)
+    print(server)
+    time.sleep(5)
+    os.chdir(current_dir)
 
 
 class SUI:
-    def __init__(self, extension_path, PROXY_PASS):
+    def __init__(self, extension_path):
         self.RECOVERY_PHRASE = ""
-        self.PROXY_HOST = "nft.bullproxies.com"
-        self.PROXY_PORT = "12323"
-        self.PROXY_USERNAME = "PXY_2QSpZEOD"
-        self.PROXY_PASS = PROXY_PASS
         self.wallet_address = ""
         self.windows = {}
         self.password = generate_password(15)
-
-
-        self.seleniumwire_options = {
-            'proxy': {
-                'https': f'https://{self.PROXY_USERNAME}:{self.PROXY_PASS}@{self.PROXY_HOST}:{self.PROXY_PORT}'
-            }
-        }
-
+        connect_to_vpn()
         self.extension_path = extension_path
         self.options = Options()
-        self.options.add_argument('--proxy-server=%s:%s' % (self.PROXY_HOST, self.PROXY_PORT))
         self.options.add_argument('--disable-gpu')
        # self.options.add_argument('--headless')
         self.options.add_argument("--window-size=1280,720")
@@ -43,7 +53,7 @@ class SUI:
         self.options.add_extension(self.extension_path)
 
 
-        self.driver = webdriver.Chrome(seleniumwire_options=self.seleniumwire_options, options=self.options)
+        self.driver = webdriver.Chrome(options=self.options)
         self.wait = WebDriverWait(self.driver, 30, 1)
 
     def connect_sui(self):
@@ -54,22 +64,20 @@ class SUI:
 
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div/div/div[2]'))).click()  # Get Started
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[1]/a'))).click() # Create a New Wallet
-
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/form/div/fieldset/label[1]/div[2]/input'))).send_keys(self.password)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/form/div/fieldset/label[2]/div[2]/input'))).send_keys(self.password)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/form/div/fieldset/label[3]/span'))).click()
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/form/button'))).click()
         self.recovery_phrase = self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[3]/div/div[3]'))).text
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[3]/div/div[7]/label/span'))).click() # ô vuông
-
-
-
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[3]/button'))).click() # click open Sui
         self.driver.find_element(By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/button').click() # coppy địa chỉ ví
         self.driver.find_element(By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/button').click() # coppy địa chỉ ví
         self.wallet_address = pyperclip.paste()
         handles = self.driver.window_handles
         self.windows['home'] = handles[-1]
+
+        add_sui_account(self.wallet_address, self.recovery_phrase, self.password, "sui_accounts.json")
 
 
 
@@ -79,19 +87,17 @@ class SUI:
         window_handles = self.driver.window_handles
         self.driver.switch_to.window(window_handles[-1])
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[3]/button'))).click() # Request Devnet SUI Tokens
-
+        time.sleep(1)
         self.driver.execute_script("window.open('{}', '_blank');".format(f"https://capy.art/collection"))
         handles = self.driver.window_handles
         current_handle = handles[-1]
         self.windows['capy'] = current_handle
-
+        time.sleep(1)
         self.driver.execute_script("window.open('{}', '_blank');".format(f"https://ethoswallet.github.io/2048-demo/"))
         handles = self.driver.window_handles
         current_handle = handles[-1]
         self.windows['2048'] = current_handle
-
         self.driver.switch_to.window(self.windows['home'])
-
         time.sleep(3)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/nav/div[2]/a[3]'))).click() # Apps
         time.sleep(1)
@@ -114,12 +120,13 @@ class SUI:
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/button'))).click() # tick ok
         time.sleep(2)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/button'))).click() # tick out
-
+        time.sleep(1)
         self.driver.switch_to.window(self.windows['capy'])
-
+        time.sleep(1)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="mainNavbar"]/div[2]/div/button'))).click() # Connect Your Wallet
+        time.sleep(1)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'/html/body/div[2]/div[2]/div/div/div[1]/button'))).click()  # sui wallet
-
+        time.sleep(1)
         self.wait.until(EC.number_of_windows_to_be(5))
         handles = self.driver.window_handles
         current_handle = handles[-1]
@@ -134,37 +141,36 @@ class SUI:
         current_handle = handles[-1]
         self.driver.switch_to.window(current_handle)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
-        time.sleep(1)
+        time.sleep(2)
 
         self.driver.switch_to.window(self.windows['2048'])
+        time.sleep(2)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="ethos-start"]/button'))).click() # get started
+        time.sleep(2)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="ethos-close-on-click"]/div/div[2]/div[2]/div/button'))).click() # connect sui
-
+        time.sleep(2)
         self.wait.until(EC.number_of_windows_to_be(5))
         handles = self.driver.window_handles
         current_handle = handles[-1]
         self.driver.switch_to.window(current_handle)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
-
-
+        time.sleep(1)
         self.driver.switch_to.window(self.windows['2048'])
         actions = ActionChains(self.driver)
         keys = [Keys.UP, Keys.DOWN, Keys.LEFT, Keys.RIGHT]
-        for i in range(15):
+        for i in range(20):
             key = random.choice(keys)
             time.sleep(1)
             actions.send_keys(key).perform()
+        time.sleep(1)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="claim-button"]'))).click()  # claim
-
         self.wait.until(EC.number_of_windows_to_be(5))
         handles = self.driver.window_handles
         current_handle = handles[-1]
         self.driver.switch_to.window(current_handle)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
-
+        time.sleep(2)
         self.driver.switch_to.window(self.windows['home'])
-        add_sui_account(self.wallet_address, self.recovery_phrase, self.password, "sui_accounts.json")
-
         self.driver.quit()
 
 
