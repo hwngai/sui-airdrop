@@ -11,6 +11,5 @@ while True:
         sui.connect_sui()
         sui.action_sui()
     except:
-        add_sui_account(sui.wallet_address, sui.recovery_phrase, sui.password, "sui_accounts.json")
         sui.driver.quit()
         pass

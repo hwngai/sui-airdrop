@@ -97,6 +97,13 @@ class SUI:
         handles = self.driver.window_handles
         current_handle = handles[-1]
         self.windows['2048'] = current_handle
+
+        # time.sleep(1)
+        # self.driver.execute_script("window.open('{}', '_blank');".format(f"https://suins.io/"))
+        # handles = self.driver.window_handles
+        # current_handle = handles[-1]
+        # self.windows['name'] = current_handle
+
         self.driver.switch_to.window(self.windows['home'])
         time.sleep(3)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/nav/div[2]/a[3]'))).click() # Apps
@@ -111,7 +118,7 @@ class SUI:
         time.sleep(1)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/div/div[2]'))).click() # Select Amount
             # input Amount 0.01-0.04
-        Amount = round(random.uniform(0.01, 0.035), 2)
+        Amount = round(random.uniform(0.010, 0.019), 3)
         time.sleep(1)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/div/div[1]/form/div[2]/div[1]/div/input'))).send_keys(Amount) # Select a Validator
         time.sleep(2)
@@ -135,14 +142,42 @@ class SUI:
         time.sleep(1)
 
         self.driver.switch_to.window(self.windows['capy'])
+        self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="app"]/div/main/div/div/div/div[1]/div/div[1]/p'))).click()
+        self.wait.until(EC.number_of_windows_to_be(5))
+        handles = self.driver.window_handles
+        current_handle = handles[-1]
+        self.driver.switch_to.window(current_handle)
+        self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
+        time.sleep(1)
+
+        self.wait.until(EC.number_of_windows_to_be(4))
+        self.driver.switch_to.window(self.windows['capy'])
+        time.sleep(2)
+        self.driver.get('https://capy.art/collection')
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="app"]/div/main/div/div/div/div[2]/div/div[1]/p'))).click()
         self.wait.until(EC.number_of_windows_to_be(5))
         handles = self.driver.window_handles
         current_handle = handles[-1]
         self.driver.switch_to.window(current_handle)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
-        time.sleep(2)
 
+        self.wait.until(EC.number_of_windows_to_be(4))
+        self.driver.switch_to.window(self.windows['capy'])
+        time.sleep(1)
+        self.driver.get('https://capy.art/breed')
+        time.sleep(3)
+        try:
+            self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="app"]/div/main/div/div[2]/button'))).click()
+            self.wait.until(EC.number_of_windows_to_be(5))
+            handles = self.driver.window_handles
+            current_handle = handles[-1]
+            self.driver.switch_to.window(current_handle)
+            self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
+            time.sleep(1)
+        except:
+            pass
+
+        self.wait.until(EC.number_of_windows_to_be(4))
         self.driver.switch_to.window(self.windows['2048'])
         time.sleep(2)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="ethos-start"]/button'))).click() # get started
@@ -170,11 +205,38 @@ class SUI:
         self.driver.switch_to.window(current_handle)
         self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
         time.sleep(2)
+
+        #
+        # self.wait.until(EC.number_of_windows_to_be(5))
+        # self.driver.switch_to.window(self.windows['name'])
+        # time.sleep(1)
+        # self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="headlessui-dialog-panel-:rt:"]/div[2]/div[3]/label/div[1]/input'))).click() # get started
+        # time.sleep(1)
+        # self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div[2]/nav/div/div/div/div[1]/div[2]/div/div[2]/div/button'))).click() # get started
+        # time.sleep(1)
+        # self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="headlessui-dialog-panel-:rv:"]/div[2]/div[1]/div/button'))).click() # get started
+        # time.sleep(1)
+        #
+        #
+        # self.wait.until(EC.number_of_windows_to_be(6))
+        # handles = self.driver.window_handles
+        # current_handle = handles[-1]
+        # self.driver.switch_to.window(current_handle)
+        # self.wait.until(EC.presence_of_element_located((By.XPATH, f'//*[@id="root"]/div/div/div[2]/main/div/div[2]/div/button[2]'))).click()  # connect
+        # time.sleep(2)
+        #
+        # self.wait.until(EC.number_of_windows_to_be(5))
+        # self.driver.switch_to.window(self.windows['name'])
+
+
+
         self.driver.switch_to.window(self.windows['home'])
         self.driver.quit()
 
-
-
-
-
+#
+# extension_path = "Sui-Wallet.crx"
+# sui = SUI(extension_path)
+# sui.connect_sui()
+# sui.action_sui()
+#
 
